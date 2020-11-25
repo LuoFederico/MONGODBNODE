@@ -1,24 +1,26 @@
 var express = require('express');
 var router = express.Router();
-
 const MongoClient = require('mongodb').MongoClient; //Importo la libreria mongodb
+const uri = "mongodb+srv://Luo:Giacomo567567@cluster0.kj9lm.mongodb.net/Cluster0?retryWrites=true&w=majority";
 
 /* GET users listing. */
-router.get('/movie_from_title/:title', function (req, res, next) {
-    console.log(req.params); //Leggo i parametri passati all'url
-    title = req.params.title;
-    const uri = "mongodb+srv://Luo:Giacomo567567@cluster0.kj9lm.mongodb.net/Cluster0?retryWrites=true&w=majority";
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-    client.connect(err => {
-        const collection = client.db("sample_mflix").collection("movies"); //Mi connetto alla collection movies
-        // perform actions on the collection object
-        collection.find({ 'title': `${title}` }).toArray((err, result) => {
-        if (err) console.log(err.message); //Se c'è qualche errore lo stampo
-        else res.send(result);
-        client.close(); //Quando ho terminato la find chiudo la sessione con il db
-        }); //Eseguo la query e passo una funzione di callback
+router.get('/', function (req, res, next) {
+        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+        client.connect(get10Movies);
 
+        
+        function get10Movies(err){
+            if(err) console.log("Conessione al db non riuscita");
+            else{
+                const collection = client.db("sample_mflix").collection("movies");
+                collection.find().limit(10).toArray(callBackQuery);
+            }
 
+        }
+        function callBackQuery(err, result){
+            if(err) console.log(err,messagge);
+            else res.send(result);
+            client.close();
+        }
     });
-});
 module.exports = router;
